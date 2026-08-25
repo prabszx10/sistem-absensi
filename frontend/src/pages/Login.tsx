@@ -1,0 +1,53 @@
+import React, { useState } from 'react';
+import { Form, Input, Button, Card, message } from 'antd';
+import { UserOutlined, LockOutlined } from '@ant-design/icons';
+import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
+
+export const LoginPage: React.FC = () => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+
+const onFinish = async (values: any) => {
+  setLoading(true);
+  try {
+    // Gunakan path /api/auth/login (dikirim via Vite Proxy)
+    const res = await axios.post('/api/auth/login', values, {
+      withCredentials: true,
+    });
+
+    if (res.data?.access_token) {
+      localStorage.setItem('token', res.data.access_token);
+    }
+
+    message.success('Login berhasil!');
+    navigate('/dashboard');
+  } catch (err: any) {
+    message.error(err.response?.data?.message || 'Email atau password salah');
+  } finally {
+    setLoading(false);
+  }
+};
+
+  return (
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
+      <Card title="Back-Office Login" style={{ width: 360, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+        <Form name="login" onFinish={onFinish} layout="vertical">
+          <Form.Item name="email" rules={[{ required: true, message: 'Masukkan Email!' }, { type: 'email', message: 'Email tidak valid!' }]}>
+            <Input prefix={<UserOutlined />} placeholder="Email" size="large" />
+          </Form.Item>
+
+          <Form.Item name="password" rules={[{ required: true, message: 'Masukkan Password!' }]}>
+            <Input.Password prefix={<LockOutlined />} placeholder="Password" size="large" />
+          </Form.Item>
+
+          <Form.Item>
+            <Button type="primary" htmlType="submit" block size="large" loading={loading}>
+              Log in
+            </Button>
+          </Form.Item>
+        </Form>
+      </Card>
+    </div>
+  );
+};
