@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository,DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 
 import { Employee } from './employee.entity';
@@ -16,33 +16,44 @@ export class EmployeeService {
 
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
+
+    private readonly dataSource: DataSource,
   ) {}
 
-  async create(createEmployeeDto: CreateEmployeeDto): Promise<Employee> {
-    const { nama, email, posisi, password } = createEmployeeDto;
+  async create(createEmployeeDto: CreateEmployeeDto, currentUser: any): Promise<Employee> {
+    const { nama, email, posisi, phoneNo, password } = createEmployeeDto;
 
-    const existingUser = await this.userRepository.findOne({ where: { email } });
-    if (existingUser) {
-      throw new ConflictException('Email sudah terdaftar sebagai akun user');
-    }
+    return await this.dataSource.transaction(async (trx) => {
+      const userRepository = trx.getRepository(User);
+      const employeeRepository = trx.getRepository(Employee);
 
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    const newUser = this.userRepository.create({
-      email,
-      password: hashedPassword,
-      role: 'employee',
+      const existingUser = await userRepository.findOne({ where: { email } });
+      if (existingUser) {
+        throw new ConflictException('Email sudah terdaftar sebagai akun user');
+      }
+  
+      const hashedPassword = await bcrypt.hash(password, 10);
+  
+      const newUser = userRepository.create({
+        email,
+        password: hashedPassword,
+        role: 'employee',
+      });
+  
+      const savedUser = await userRepository.save(newUser);
+  
+      const employee = employeeRepository.create({
+        nama,
+        email,
+        posisi,
+        phoneNo,
+        userId: savedUser.id,
+        createdBy: currentUser.id,
+        updatedBy: currentUser.id
+      });
+  
+      return await employeeRepository.save(employee);
     });
-    const savedUser = await this.userRepository.save(newUser);
-
-    const employee = this.employeeRepository.create({
-      nama,
-      email,
-      posisi,
-      userId: savedUser.id,
-    });
-
-    return await this.employeeRepository.save(employee);
   }
 
   async findAll(): Promise<Employee[]> {

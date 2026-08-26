@@ -4,16 +4,19 @@ import { User } from '../users/user.entity';
 @Entity('employee')
 export class Employee {
   @PrimaryGeneratedColumn('uuid')
-  id!: string;
+  id: string;
 
   @Column()
-  nama!: string;
+  nama: string;
 
   @Column({ unique: true })
-  email!: string;
+  email: string;
 
   @Column()
   posisi: string;
+
+  @Column()
+  phoneNo: string;
 
   @Column({ nullable: true })
   userId: string;
@@ -22,9 +25,15 @@ export class Employee {
   @JoinColumn({ name: 'userId' })
   user: User;
 
-  @CreateDateColumn()
+  @Column()
+  createdBy: string;
+
+  @CreateDateColumn({ type: 'timestamp' })
   createdAt!: Date;
 
-  @UpdateDateColumn()
+  @Column()
+  updatedBy: string;
+
+  @UpdateDateColumn({ type: 'timestamp' })
   updatedAt!: Date;
 }

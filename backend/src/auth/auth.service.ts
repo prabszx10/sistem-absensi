@@ -27,8 +27,11 @@ export class AuthService {
       throw new UnauthorizedException('Email atau password salah');
     }
 
-    const payload = { sub: user.id, email: user.email, role: user.role };
-    const accessToken = this.jwtService.sign(payload);
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: 'dickypraboowo2026',
+      expiresIn: '1d',
+    });
 
     return {
       message: 'Login berhasil',
