@@ -4,7 +4,7 @@ import { AttendanceService } from './attendance.service';
 import { CreateAttendanceDto } from './dto/create-attendance.dto';
 import { ApiTags, ApiBody, ApiParam, ApiBearerAuth} from '@nestjs/swagger';
 
-@ApiTags('employee')
+@ApiTags('attendance')
 @ApiBearerAuth('jwt-auth')
 @UseGuards(JwtAuthGuard)
 @Controller('attendance')
@@ -16,5 +16,11 @@ export class AttendanceController{
     create(@Body() CreateAttendanceDto: CreateAttendanceDto,@Req() req: any) {
         const currentUser = req.user;
         return this.AttendanceService.create(CreateAttendanceDto,currentUser);
+    }
+
+    @Get()
+    findOne(@Req() req: any){
+        const currentUser = req.user;
+        return this.AttendanceService.findOne(currentUser);
     }
 }

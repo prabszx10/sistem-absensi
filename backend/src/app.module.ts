@@ -6,11 +6,13 @@ import KeyvRedis from '@keyv/redis';
 
 import { User } from './users/user.entity';
 import { Employee } from './employee/employee.entity';
+import { Attendance } from './attendance/attendance.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 import { EmployeeModule } from './employee/employee.module';
-import { AuthModule } from './auth/auth.module'; // 1. Import AuthModule
+import { AuthModule } from './auth/auth.module'; 
+import { AttendanceModule } from './attendance/attendance.module'; 
 
 @Module({
   imports: [
@@ -26,7 +28,7 @@ import { AuthModule } from './auth/auth.module'; // 1. Import AuthModule
         username: configService.get<string>('DB_USERNAME'),
         password: configService.get<string>('DB_PASSWORD'),
         database: configService.get<string>('DB_NAME'),
-        entities: [User, Employee],
+        entities: [User, Employee, Attendance],
         synchronize: true,
       }),
     }),
@@ -46,6 +48,7 @@ import { AuthModule } from './auth/auth.module'; // 1. Import AuthModule
 
     EmployeeModule,
     AuthModule,
+    AttendanceModule,
   ],
   controllers: [AppController],
   providers: [AppService],

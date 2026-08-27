@@ -4,15 +4,15 @@ import { Attendance } from './attendance.entity';
 import { Employee } from '../employee/employee.entity';
 import { AttendanceService } from './attendance.service';
 import { AttendanceController } from './attendance.controller';
-import { EmployeeService } from '../employee/employee.service';
+import { EmployeeModule } from '../employee/employee.module';
 
 
 @Module({
     imports: [
         TypeOrmModule.forFeature([Employee, Attendance]),
+        EmployeeModule,
     ],
     controllers: [AttendanceController],
     providers: [AttendanceService],
-    exports: [EmployeeService],
 })
 export class AttendanceModule { }

@@ -27,9 +27,10 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./backend:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./backend:/app
+      - /app/node_modules
     environment:
+      - TZ=Asia/Jakarta
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=${DB_USERNAME:-postgres}
@@ -37,6 +38,8 @@ services:
       - DB_NAME=${DB_NAME:-mydb}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     depends_on:
       - postgres
       - redis

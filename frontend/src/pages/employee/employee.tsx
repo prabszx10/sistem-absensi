@@ -27,7 +27,7 @@ export const EmployeePage: React.FC = () => {
       const res = await axios.get('/employee');
       const dataWithKeys = res.data.map((item: any) => ({ ...item, key: item.id }));
       setEmployees(dataWithKeys);
-    } catch (err) {
+    } catch (err:any) {
       const backendMessage = err.response?.data?.message;
 
       if (Array.isArray(backendMessage)) {

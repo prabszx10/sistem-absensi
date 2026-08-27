@@ -8,13 +8,6 @@ export enum AttendanceStatus {
 
 export class CreateAttendanceDto {
     @ApiProperty({
-      example: '13241234123', 
-    })
-    @IsString()
-    @IsNotEmpty({ message: 'Data Employee Tidak Ditemukan' })
-    employeeId: string;
-
-    @ApiProperty({
       example: 'MASUK', 
     })
     @IsString()

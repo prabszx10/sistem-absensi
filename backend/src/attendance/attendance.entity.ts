@@ -20,6 +20,7 @@ export class Attendance {
     Employee: Employee;
 
     @Column({ nullable: true })
+    @CreateDateColumn({ type: 'timestamptz' })
     attDateTime: Date;
 
     @Column({ type: 'enum', enum: AttendanceStatus, default: AttendanceStatus.MASUK })
@@ -28,12 +29,12 @@ export class Attendance {
     @Column()
     createdBy: string;
 
-    @CreateDateColumn({ type: 'timestamp' })
+    @CreateDateColumn({ type: 'timestamptz' })
     createdAt!: Date;
 
     @Column()
     updatedBy: string;
 
-    @UpdateDateColumn({ type: 'timestamp' })
+    @UpdateDateColumn({ type: 'timestamptz' })
     updatedAt!: Date;
 }
