@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.entity';
+import { Employee } from '../employee/employee.entity';
 import { LoginDto } from './dto/login.dto';
 
 @Injectable()
@@ -11,6 +12,8 @@ export class AuthService {
   constructor(
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Employee)
+    private employeeRepository: Repository<Employee>,
     private jwtService: JwtService,
   ) {}
 
@@ -27,6 +30,8 @@ export class AuthService {
       throw new UnauthorizedException('Email atau password salah');
     }
 
+    const employee = await this.employeeRepository.findOne({ where: { "userId": user.id} });
+
     const payload = { id: user.id, email: user.email, role: user.role };
     const accessToken = this.jwtService.sign(payload, {
       secret: 'dickypraboowo2026',
@@ -40,6 +45,7 @@ export class AuthService {
         id: user.id,
         email: user.email,
         role: user.role,
+        name: employee?.nama,
       },
     };
   }

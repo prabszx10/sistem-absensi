@@ -18,6 +18,7 @@ const onFinish = async (values: any) => {
 
     if (res.data?.access_token) {
       localStorage.setItem('token', res.data.access_token);
+      localStorage.setItem('user_name', res.data.user.nama);
     }
 
     message.success('Login berhasil!');

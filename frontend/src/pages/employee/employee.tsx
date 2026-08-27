@@ -28,10 +28,15 @@ export const EmployeePage: React.FC = () => {
       const dataWithKeys = res.data.map((item: any) => ({ ...item, key: item.id }));
       setEmployees(dataWithKeys);
     } catch (err) {
-      setEmployees([
-        { key: '1', id: '1', nama: 'Arian', email: 'arian@example.com', posisi: 'Developer', phoneNo: '08123456789' },
-        { key: '2', id: '2', nama: 'Dicky Prabowo Octiantto', email: 'dicky@example.com', posisi: 'Manager', phoneNo: '08987654321' },
-      ]);
+      const backendMessage = err.response?.data?.message;
+
+      if (Array.isArray(backendMessage)) {
+        message.error(backendMessage.join(', '));
+      } else if (typeof backendMessage === 'string') {
+        message.error(backendMessage);
+      } else {
+        message.error('Terjadi kesalahan pada sistem');
+      }
     } finally {
       setLoading(false);
     }
@@ -55,7 +60,6 @@ export const EmployeePage: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  // Submit Handler Add / Edit
   const handleSubmit = async (values: EmployeeType) => {
     try {
       if (editingEmployee) {

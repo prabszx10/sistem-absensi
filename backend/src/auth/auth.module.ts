@@ -3,6 +3,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { JwtModule } from '@nestjs/jwt';
 
 import { User } from '../users/user.entity';
+import { Employee } from '../employee/employee.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { SeederService } from '../database/seeder.service';
@@ -10,7 +11,7 @@ import { SeederService } from '../database/seeder.service';
 
 @Module({
   imports: [
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User,Employee]),
     JwtModule.register({
       global: true,
       secret: 'dickyprabowo2026',
