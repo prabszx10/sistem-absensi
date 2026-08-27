@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Button, theme } from 'antd';
 import { UserOutlined, DashboardOutlined, LogoutOutlined } from '@ant-design/icons';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation, Outlet } from 'react-router-dom';
 
 const { Header, Sider, Content } = Layout;
 
-export const DashboardPage: React.FC = () => {
+export const DashboardLayout: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
 
   const handleLogout = () => {
@@ -23,11 +24,12 @@ export const DashboardPage: React.FC = () => {
         </div>
         <Menu
           theme="dark"
-          defaultSelectedKeys={['1']}
+          selectedKeys={[location.pathname]}
+          onClick={(e) => navigate(e.key)}
           mode="inline"
           items={[
-            { key: '1', icon: <DashboardOutlined />, label: 'Dashboard' },
-            { key: '2', icon: <UserOutlined />, label: 'Employee' },
+            { key: '/dashboard', icon: <DashboardOutlined />, label: 'Dashboard' },
+            { key: '/employee', icon: <UserOutlined />, label: 'Employee' },
           ]}
         />
       </Sider>
@@ -39,8 +41,8 @@ export const DashboardPage: React.FC = () => {
         </Header>
         <Content style={{ margin: '16px' }}>
           <div style={{ padding: 24, minHeight: 360, background: colorBgContainer, borderRadius: borderRadiusLG }}>
-            <h2>Selamat Datang di Back-Office Dashboard</h2>
-            <p>Sistem ini sudah terhubung dengan NestJS API & Postgres/Redis.</p>
+            {/* Component anak (Employee / Home) dirender di sini berdasarkan URL */}
+            <Outlet />
           </div>
         </Content>
       </Layout>

@@ -1,14 +1,22 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
-import { DashboardPage } from './pages/Dashboard';
+import { DashboardLayout } from './pages/DashboardLayout';
+import { DashboardHome } from './pages/DashboardHome';
+import { EmployeePage } from './pages/employee/employee';
 
 export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+        
+        {/* Gunakan DashboardLayout untuk kedua halaman */}
+        <Route element={<DashboardLayout />}>
+          <Route path="/dashboard" element={<DashboardHome />} />
+          <Route path="/employee" element={<EmployeePage />} />
+        </Route>
+
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

@@ -8,7 +8,7 @@ export class JwtAuthGuard implements CanActivate {
 
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<Request>();
-    const token = this.extractTokenFromHeader(request);
+    const token = request.cookies?.access_token || this.extractTokenFromHeader(request);
 
     if (!token) {
       throw new UnauthorizedException('Token JWT tidak ditemukan, silakan login');

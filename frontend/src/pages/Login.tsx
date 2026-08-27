@@ -12,7 +12,7 @@ const onFinish = async (values: any) => {
   setLoading(true);
   try {
     // Gunakan path /api/auth/login (dikirim via Vite Proxy)
-    const res = await axios.post('/api/auth/login', values, {
+    const res = await axios.post('/auth/login', values, {
       withCredentials: true,
     });
 
