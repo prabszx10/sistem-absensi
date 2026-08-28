@@ -9,7 +9,7 @@ export enum AttendanceStatus {
 
 @Entity('attendance')
 export class Attendance {
-    @PrimaryGeneratedColumn('uuid')
+    @PrimaryGeneratedColumn()
     id: string;
 
     @Column({ nullable: true })
@@ -17,9 +17,8 @@ export class Attendance {
 
     @ManyToOne(() => Employee, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'employeeId' })
-    Employee: Employee;
+    employee: Employee;
 
-    @Column({ nullable: true })
     @CreateDateColumn({ type: 'timestamptz' })
     attDateTime: Date;
 

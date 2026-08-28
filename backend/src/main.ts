@@ -3,8 +3,14 @@ import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 import cookieParser from 'cookie-parser';
+import { types } from 'pg';
 
 async function bootstrap() {
+  types.setTypeParser(1082, (val: string) => val);
+  types.setTypeParser(1083, (val: string) => val);
+  types.setTypeParser(1114, (val: string) => val);
+  types.setTypeParser(1184, (val: string) => val);
+  
   const app = await NestFactory.create(AppModule);
 
   // Mengaktifkan validasi input secara global

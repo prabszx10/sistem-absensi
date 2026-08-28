@@ -30,6 +30,10 @@ import { AttendanceModule } from './attendance/attendance.module';
         database: configService.get<string>('DB_NAME'),
         entities: [User, Employee, Attendance],
         synchronize: true,
+        timezone: 'Asia/Jakarta',
+        extra: {
+          options: '-c timezone=Asia/Jakarta',
+        },
       }),
     }),
 
