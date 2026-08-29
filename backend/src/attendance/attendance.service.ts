@@ -86,7 +86,7 @@ export class AttendanceService {
         const getUser = await this.userRepository.findOne({
             where: { id: currentUser.id }
         })
-
+        
         if(getUser?.role != 'admin'){
             const getEmployee = await this.employeeRepository.findOne({ 
                 where: { userId: currentUser.id },

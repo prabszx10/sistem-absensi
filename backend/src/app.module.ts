@@ -7,6 +7,7 @@ import { Employee } from './employee/employee.entity';
 import { Attendance } from './attendance/attendance.entity';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { SeederModule } from './database/seeder.module';
 
 import { EmployeeModule } from './employee/employee.module';
 import { AuthModule } from './auth/auth.module'; 
@@ -39,7 +40,8 @@ import { AuditLogModule } from './audit-log/audit-log.module';
     EmployeeModule,
     AuthModule,
     AttendanceModule,
-    AuditLogModule
+    AuditLogModule,
+    SeederModule,
   ],
   controllers: [AppController],
   providers: [AppService],

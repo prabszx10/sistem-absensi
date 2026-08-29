@@ -108,10 +108,12 @@ export class EmployeeController {
   update(
     @Param('id') id: string,
     @Body() updateEmployeeDto: UpdateEmployeeDto,
+    @Req() req: any,
     @UploadedFile() file?: any,
   ) {
+    const currentUser = req.user;
     const photoName = file ? file.filename : undefined;
-    return this.employeeService.update(id, updateEmployeeDto, photoName);
+    return this.employeeService.update(id, updateEmployeeDto, currentUser, photoName);
   }
 
   @Delete(':id')

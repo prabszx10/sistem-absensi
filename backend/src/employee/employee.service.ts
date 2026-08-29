@@ -85,7 +85,7 @@ export class EmployeeService {
     return employee;
   }
   
-  async update(id: string, updateEmployeeDto: UpdateEmployeeDto, photoName?: string): Promise<Employee> {
+  async update(id: string, updateEmployeeDto: UpdateEmployeeDto,  currentUser: any, photoName?: string): Promise<Employee> {
     const employee = await this.findOne(id);
     if (!employee) {
       throw new NotFoundException('Employee tidak ditemukan');
@@ -105,7 +105,11 @@ export class EmployeeService {
     Object.assign(employee, updatedData);
     const savedEmployee = await this.employeeRepository.save(employee);
 
-    if(employee?.user.role != 'admin'){
+    const getUser = await this.userRepository.findOne({
+      where: { id: currentUser.id }
+    })
+
+    if(getUser?.role != 'admin'){
       this.rabbitClient.emit('employee_profile_updated', {
         employeeId: id,
         email: updateEmployeeDto.email,
