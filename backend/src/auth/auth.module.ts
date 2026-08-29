@@ -6,7 +6,6 @@ import { User } from '../users/user.entity';
 import { Employee } from '../employee/employee.entity';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { SeederService } from '../database/seeder.service';
 
 
 @Module({
@@ -19,7 +18,7 @@ import { SeederService } from '../database/seeder.service';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, SeederService],
+  providers: [AuthService],
   exports: [AuthService], // Export jika butuh dipanggil modul lain
 })
 export class AuthModule {}

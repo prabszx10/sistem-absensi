@@ -13,11 +13,29 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  redis:
-    image: redis:7-alpine
-    container_name: redis_cache
+  # Database Terpisah khusus Audit Log (Poin 2)
+  postgres_log:
+    image: postgres:15-alpine
+    container_name: postgres_log_db
+    environment:
+      POSTGRES_USER: ${LOG_DB_USERNAME:-postgres_log}
+      POSTGRES_PASSWORD: ${LOG_DB_PASSWORD:-postgres_log}
+      POSTGRES_DB: ${LOG_DB_NAME:-audit_log_db}
     ports:
-      - "6379:6379"
+      - "5433:5432"
+    volumes:
+      - pglogdata:/var/lib/postgresql/data
+
+  # Message Broker RabbitMQ (Poin 1 & 2)
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: rabbitmq_broker
+    ports:
+      - "5672:5672"
+      - "15672:15672" 
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASS:-guest}
 
   backend:
     build:
@@ -31,18 +49,27 @@ services:
       - /app/node_modules
     environment:
       - TZ=Asia/Jakarta
+      # Database Utama
       - DB_HOST=postgres
       - DB_PORT=5432
       - DB_USERNAME=${DB_USERNAME:-postgres}
       - DB_PASSWORD=${DB_PASSWORD:-postgres}
       - DB_NAME=${DB_NAME:-mydb}
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
+      # Database Audit Log Terpisah
+      - LOG_DB_HOST=postgres_log
+      - LOG_DB_PORT=5432
+      - LOG_DB_USERNAME=${LOG_DB_USERNAME:-postgres_log}
+      - LOG_DB_PASSWORD=${LOG_DB_PASSWORD:-postgres_log}
+      - LOG_DB_NAME=${LOG_DB_NAME:-audit_log_db}
+      # RabbitMQ Broker
+      - RABBITMQ_URL=amqp://${RABBITMQ_USER:-guest}:${RABBITMQ_PASS:-guest}@rabbitmq:5672
+      # Hot Reload / Polling
       - WATCHPACK_POLLING=true
       - CHOKIDAR_USEPOLLING=true
     depends_on:
       - postgres
-      - redis
+      - postgres_log
+      - rabbitmq
 
   frontend:
     build:
@@ -57,5 +84,19 @@ services:
     depends_on:
       - backend
 
+  frontend-admin:
+    build:
+      context: ./frontend-admin
+      dockerfile: Dockerfile
+    container_name: frontend-admin
+    ports:
+      - "5174:5173"
+    volumes:
+      - ./frontend-admin:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+
 volumes:
   pgdata:
+  pglogdata:

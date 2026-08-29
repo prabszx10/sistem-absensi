@@ -1,7 +1,10 @@
-import { Injectable, NotFoundException, ConflictException } from '@nestjs/common';
+import { Injectable, NotFoundException, ConflictException, Inject} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository,DataSource } from 'typeorm';
 import * as bcrypt from 'bcrypt';
+import * as fs from 'fs';
+import * as path from 'path';
+import { ClientProxy } from '@nestjs/microservices';
 
 import { Employee } from './employee.entity';
 import { User } from '../users/user.entity';
@@ -18,9 +21,11 @@ export class EmployeeService {
     private readonly userRepository: Repository<User>,
 
     private readonly dataSource: DataSource,
+
+    @Inject('RABBITMQ_SERVICE') private readonly rabbitClient: ClientProxy
   ) {}
 
-  async create(createEmployeeDto: CreateEmployeeDto, currentUser: any): Promise<Employee> {
+  async create(createEmployeeDto: CreateEmployeeDto, currentUser: any, photoName?: string): Promise<Employee> {
     const { nama, email, posisi, phoneNo, password } = createEmployeeDto;
 
     return await this.dataSource.transaction(async (trx) => {
@@ -41,12 +46,13 @@ export class EmployeeService {
       });
   
       const savedUser = await userRepository.save(newUser);
-  
+
       const employee = employeeRepository.create({
         nama,
         email,
         posisi,
         phoneNo,
+        photo: photoName,
         userId: savedUser.id,
         createdBy: currentUser.id,
         updatedBy: currentUser.id
@@ -78,11 +84,38 @@ export class EmployeeService {
 
     return employee;
   }
-
-  async update(id: string, updateEmployeeDto: UpdateEmployeeDto): Promise<Employee> {
+  
+  async update(id: string, updateEmployeeDto: UpdateEmployeeDto, photoName?: string): Promise<Employee> {
     const employee = await this.findOne(id);
-    Object.assign(employee, updateEmployeeDto);
-    return await this.employeeRepository.save(employee);
+    if (!employee) {
+      throw new NotFoundException('Employee tidak ditemukan');
+    }
+
+    if (photoName && employee.photo) {
+      const oldPath = path.join(process.cwd(), 'uploads/employees', employee.photo);
+      if (fs.existsSync(oldPath)) {
+        fs.unlinkSync(oldPath); // Hapus file lama
+      }
+    }
+    const updatedData = {
+      ...updateEmployeeDto,
+      ...(photoName && { photo: photoName }),
+    };
+
+    Object.assign(employee, updatedData);
+    const savedEmployee = await this.employeeRepository.save(employee);
+
+    if(employee?.user.role != 'admin'){
+      this.rabbitClient.emit('employee_profile_updated', {
+        employeeId: id,
+        email: updateEmployeeDto.email,
+        nama: updateEmployeeDto.nama,
+        changes: updatedData,
+        updatedAt: new Date(),
+      });
+    }
+
+    return savedEmployee;
   }
 
   async remove(id: string): Promise<{ message: string }> {
@@ -93,7 +126,7 @@ export class EmployeeService {
     if (employee.userId) {
       await this.userRepository.delete(employee.userId);
     }
-
+    
     return { message: `Employee ${employee.nama} beserta akun usernya berhasil dihapus` };
   }
 }

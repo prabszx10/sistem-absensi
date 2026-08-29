@@ -11,14 +11,14 @@ export const LoginPage: React.FC = () => {
 const onFinish = async (values: any) => {
   setLoading(true);
   try {
-    // Gunakan path /api/auth/login (dikirim via Vite Proxy)
     const res = await axios.post('/auth/login', values, {
       withCredentials: true,
     });
 
     if (res.data?.access_token) {
       localStorage.setItem('token', res.data.access_token);
-      localStorage.setItem('user_name', res.data.user.nama);
+      localStorage.setItem('user_name', res.data.user.name);
+      localStorage.setItem('randomize', res.data.user.employeeId);
     }
 
     message.success('Login berhasil!');
@@ -32,7 +32,7 @@ const onFinish = async (values: any) => {
 
   return (
     <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f0f2f5' }}>
-      <Card title="Back-Office Login" style={{ width: 360, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
+      <Card title="Login Sistem Absensi" style={{ width: 360, boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
         <Form name="login" onFinish={onFinish} layout="vertical">
           <Form.Item name="email" rules={[{ required: true, message: 'Masukkan Email!' }, { type: 'email', message: 'Email tidak valid!' }]}>
             <Input prefix={<UserOutlined />} placeholder="Email" size="large" />

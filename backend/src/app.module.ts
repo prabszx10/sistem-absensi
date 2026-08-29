@@ -1,8 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { CacheModule } from '@nestjs/cache-manager';
-import KeyvRedis from '@keyv/redis';
 
 import { User } from './users/user.entity';
 import { Employee } from './employee/employee.entity';
@@ -13,6 +11,7 @@ import { AppService } from './app.service';
 import { EmployeeModule } from './employee/employee.module';
 import { AuthModule } from './auth/auth.module'; 
 import { AttendanceModule } from './attendance/attendance.module'; 
+import { AuditLogModule } from './audit-log/audit-log.module';
 
 @Module({
   imports: [
@@ -37,22 +36,10 @@ import { AttendanceModule } from './attendance/attendance.module';
       }),
     }),
 
-    CacheModule.registerAsync({
-      isGlobal: true,
-      imports: [ConfigModule],
-      inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        stores: [
-          new KeyvRedis(
-            `redis://${configService.get('REDIS_HOST')}:${configService.get('REDIS_PORT')}`,
-          ),
-        ],
-      }),
-    }),
-
     EmployeeModule,
     AuthModule,
     AttendanceModule,
+    AuditLogModule
   ],
   controllers: [AppController],
   providers: [AppService],

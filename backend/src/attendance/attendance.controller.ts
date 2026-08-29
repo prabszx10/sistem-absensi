@@ -26,8 +26,8 @@ export class AttendanceController{
     }
 
     @Get('/filter')
-    @ApiQuery({ name: 'start_date', required: false, type: String, example: '2026-08-28' })
-    @ApiQuery({ name: 'end_date', required: false, type: String, example: '2026-08-28' })
+    @ApiQuery({ name: 'startDate', required: false, type: String, example: '2026-08-28' })
+    @ApiQuery({ name: 'endDate', required: false, type: String, example: '2026-08-28' })
     findByDate(@Query() filterAttendanceDto: FilterAttendanceDto,@Req() req: any){
         const currentUser = req.user;
         return this.AttendanceService.findByDate(filterAttendanceDto,currentUser);

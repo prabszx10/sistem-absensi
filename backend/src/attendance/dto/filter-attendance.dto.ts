@@ -6,11 +6,11 @@ export class FilterAttendanceDto {
         example: '2026-08-28', 
     })
     @IsNotEmpty({ message: 'Tanggal Mulai Harus Diisi' })
-    start_date: string;
+    startDate: string;
 
     @ApiProperty({
         example: '2026-08-28', 
     })
     @IsNotEmpty({ message: 'Tanggal Selesai Harus Diisi' })
-    end_date: string;
+    endDate: string;
 }

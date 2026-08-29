@@ -3,7 +3,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { LoginPage } from './pages/Login';
 import { DashboardLayout } from './pages/DashboardLayout';
 import { DashboardHome } from './pages/DashboardHome';
-import { EmployeePage } from './pages/employee/employee';
+import { AttendancePage } from './pages/Attendance';
+import { EmployeeProfilePage } from './pages/EmployeeProfile';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export const App: React.FC = () => {
@@ -17,7 +18,8 @@ export const App: React.FC = () => {
         <Route element={<ProtectedRoute />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardHome />} />
-            <Route path="/employee" element={<EmployeePage />} />
+            <Route path="/employeeProfile" element={<EmployeeProfilePage />} />
+            <Route path="/attendance" element={<AttendancePage />} />
           </Route>
         </Route>
 

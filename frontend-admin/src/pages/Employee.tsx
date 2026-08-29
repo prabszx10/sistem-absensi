@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Space, Button, Card, Modal, Form, Input, Popconfirm, message } from 'antd';
+import { Table, Space, Button, Card, Modal, Form, Input, Popconfirm, message, Upload, Avatar, Image, Flex, Typography } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import type { UploadFile } from 'antd/es/upload/interface';
+import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined, UserOutlined } from '@ant-design/icons';
 import axios from 'axios';
 
 interface EmployeeType {
@@ -11,13 +12,17 @@ interface EmployeeType {
   nama: string;
   posisi: string;
   phoneNo: string;
+  photo?: string;
 }
-
+const { Title } = Typography;
 export const EmployeePage: React.FC = () => {
   const [employees, setEmployees] = useState<EmployeeType[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingEmployee, setEditingEmployee] = useState<EmployeeType | null>(null);
+
+  // State khusus untuk upload file
+  const [fileList, setFileList] = useState<UploadFile[]>([]);
 
   const [form] = Form.useForm();
 
@@ -27,7 +32,7 @@ export const EmployeePage: React.FC = () => {
       const res = await axios.get('/employee');
       const dataWithKeys = res.data.map((item: any) => ({ ...item, key: item.id }));
       setEmployees(dataWithKeys);
-    } catch (err:any) {
+    } catch (err: any) {
       const backendMessage = err.response?.data?.message;
 
       if (Array.isArray(backendMessage)) {
@@ -46,30 +51,50 @@ export const EmployeePage: React.FC = () => {
     fetchEmployees();
   }, []);
 
-  // Open Modal Add
   const handleOpenAdd = () => {
     setEditingEmployee(null);
+    setFileList([]);
     form.resetFields();
     setIsModalOpen(true);
   };
 
-  // Open Modal Edit
   const handleOpenEdit = (record: EmployeeType) => {
     setEditingEmployee(record);
+    setFileList([]);
     form.setFieldsValue(record);
     setIsModalOpen(true);
   };
 
-  const handleSubmit = async (values: EmployeeType) => {
+  const handleSubmit = async (values: any) => {
     try {
+      const formData = new FormData();
+      formData.append('email', values.email);
+      formData.append('nama', values.nama);
+      formData.append('posisi', values.posisi);
+      formData.append('phoneNo', values.phoneNo);
+
+      if (values.password) {
+        formData.append('password', values.password);
+      }
+
+      if (fileList.length > 0 && fileList[0].originFileObj) {
+        formData.append('photo', fileList[0].originFileObj);
+      }
+
+      const config = {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      };
+
       if (editingEmployee) {
-        await axios.patch(`/employee/${editingEmployee.id}`, values);
+        await axios.patch(`/employee/${editingEmployee.id}`, formData, config);
         message.success('Data berhasil diperbarui');
       } else {
-        await axios.post('/employee', values);
+        await axios.post('/employee', formData, config);
         message.success('Data berhasil ditambahkan');
       }
+
       setIsModalOpen(false);
+      setFileList([]);
       fetchEmployees();
     } catch (err: any) {
       const backendMessage = err.response?.data?.message;
@@ -84,7 +109,6 @@ export const EmployeePage: React.FC = () => {
     }
   };
 
-  // Delete Handler
   const handleDelete = async (id?: string) => {
     try {
       await axios.delete(`/employee/${id}`);
@@ -96,6 +120,17 @@ export const EmployeePage: React.FC = () => {
   };
 
   const columns: ColumnsType<EmployeeType> = [
+    {
+      title: 'Foto',
+      dataIndex: 'photo',
+      key: 'photo',
+      render: (photo?: string) =>
+        photo ? (
+          <Avatar src={`http://localhost:3000/uploads/employees/${photo}`} size={40} />
+        ) : (
+          <Avatar icon={<UserOutlined />} size={40} />
+        ),
+    },
     { title: 'Email', dataIndex: 'email', key: 'email' },
     { title: 'Nama', dataIndex: 'nama', key: 'nama' },
     { title: 'Posisi', dataIndex: 'posisi', key: 'posisi' },
@@ -131,34 +166,71 @@ export const EmployeePage: React.FC = () => {
   return (
     <>
       <Card
-        title="Daftar Employee"
-        extra={
-          <Button type="primary" icon={<PlusOutlined />} onClick={handleOpenAdd}>
-            Tambah Employee
-          </Button>
-        }
       >
+        <Flex
+          justify="space-between"
+          align="center"
+          wrap="wrap"
+          gap="middle"
+          style={{ marginBottom: 16 }}
+        >
+          <Title level={3} style={{ margin: 0 }}>
+            Daftar Karyawan
+          </Title>
+
+          <Button
+            type="primary"
+            icon={<PlusOutlined />}
+            style={{ width: 'auto' }} 
+            onClick={handleOpenAdd}
+          >
+            Tambah Karyawan
+          </Button>
+        </Flex>
         <Table
           columns={columns}
           dataSource={employees}
           loading={loading}
-          pagination={{ pageSize: 10 }}
+          pagination={{ pageSize: 10, responsive: true }}
+          scroll={{ x: 'max-content' }}
+          style={{marginTop:"20px"}}
         />
       </Card>
 
       <Modal
-        title={editingEmployee ? 'Edit Employee' : 'Tambah Employee'}
+        title={editingEmployee ? 'Ubah Karyawan' : 'Tambah Karyawan'}
         open={isModalOpen}
         onCancel={() => setIsModalOpen(false)}
         onOk={() => form.submit()}
         okText={editingEmployee ? 'Simpan' : 'Tambah'}
         cancelText="Batal"
       >
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-        >
+        <Form form={form} layout="vertical" onFinish={handleSubmit}>
+          {/* Tampilkan preview foto saat ini saat edit */}
+          {editingEmployee?.photo && fileList.length === 0 && (
+            <Form.Item label="Foto Saat Ini">
+              <Image
+                width={80}
+                height={80}
+                style={{ objectFit: 'cover', borderRadius: 8 }}
+                src={`http://localhost:3000/uploads/employees/${editingEmployee.photo}`}
+                fallback="https://via.placeholder.com/80?text=No+Image"
+              />
+            </Form.Item>
+          )}
+
+          <Form.Item label="Foto Profil">
+            <Upload
+              beforeUpload={() => false}
+              fileList={fileList}
+              onChange={({ fileList }) => setFileList(fileList.slice(-1))}
+              maxCount={1}
+              accept="image/*"
+            >
+              <Button icon={<UploadOutlined />}>Pilih Foto</Button>
+            </Upload>
+          </Form.Item>
+
           <Form.Item
             name="email"
             label="Email"
@@ -197,9 +269,20 @@ export const EmployeePage: React.FC = () => {
           <Form.Item
             name="password"
             label="Password"
-            rules={[{ required: true, message: 'Password Wajib diisi' }]}
+            rules={[
+              {
+                required: !editingEmployee,
+                message: 'Password wajib diisi',
+              },
+            ]}
           >
-            <Input placeholder="Masukkan Password" type={'password'} />
+            <Input.Password
+              placeholder={
+                editingEmployee
+                  ? 'Kosongkan jika tidak ingin mengubah password'
+                  : 'Masukkan Password'
+              }
+            />
           </Form.Item>
         </Form>
       </Modal>

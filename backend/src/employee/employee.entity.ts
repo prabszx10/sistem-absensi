@@ -19,6 +19,9 @@ export class Employee {
   phoneNo: string;
 
   @Column({ nullable: true })
+  photo: string;
+  
+  @Column({ nullable: true })
   userId: string;
 
   @ManyToOne(() => User, { onDelete: 'SET NULL' })
