@@ -18,7 +18,6 @@ export class AuthController {
   ) {
     const result = await this.authService.login(loginDto);
 
-    // Set HTTP-Only Cookie menggunakan result.access_token
     response.cookie('access_token', result.access_token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -28,7 +27,30 @@ export class AuthController {
 
     return {
       message: 'Login berhasil',
-      user: result.user, // Opsional: mengembalikan data user ke frontend,
+      user: result.user,
+      access_token: result.access_token
+    };
+  }
+
+  @Post('login-admin')
+  @HttpCode(HttpStatus.OK)
+  @ApiBody({ type: LoginDto })
+  async loginAdmin(
+    @Body() loginDto: LoginDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const result = await this.authService.loginAdmin(loginDto);
+
+    response.cookie('access_token', result.access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 24 * 60 * 60 * 1000,
+    });
+
+    return {
+      message: 'Login berhasil',
+      user: result.user,
       access_token: result.access_token
     };
   }

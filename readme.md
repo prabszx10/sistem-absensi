@@ -40,6 +40,11 @@ http://localhost:3000/api/docs
 CATATAN PENGUJIAN LOKAL (AUTH SESSION)
 Karena browser membagikan LocalStorage dan Cookie pada domain localhost tanpa membedakan Port:
 Akses Frontend App melalui:  http://localhost:5173
+username => dicky@company.com
+password => Pass123!
+
 Akses Frontend Admin melalui: http://localhost:5174 (buka dengan browser yang berbeda atau dengan incognito tab)
+username => admin@company.com
+password => Admin123!
 
 Hal ini bertujuan agar Session Auth/Token antara akun Karyawan dan Admin tidak saling tertimpa saat dibuka bersamaan.

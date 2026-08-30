@@ -16,6 +16,10 @@ const onFinish = async (values: any) => {
     });
 
     if (res.data?.access_token) {
+      if (res.data.user.role != 'user') {
+        message.error('Akun anda tidak punya akses ke sistem ini');
+        navigate('/login');
+      }
       localStorage.setItem('token', res.data.access_token);
       localStorage.setItem('user_name', res.data.user.name);
       localStorage.setItem('randomize', res.data.user.employeeId);

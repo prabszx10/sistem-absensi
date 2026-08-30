@@ -42,7 +42,7 @@ export class EmployeeService {
       const newUser = userRepository.create({
         email,
         password: hashedPassword,
-        role: 'employee',
+        role: 'user',
       });
   
       const savedUser = await userRepository.save(newUser);

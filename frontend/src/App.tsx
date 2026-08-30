@@ -5,6 +5,7 @@ import { DashboardLayout } from './pages/DashboardLayout';
 import { DashboardHome } from './pages/DashboardHome';
 import { AttendancePage } from './pages/Attendance';
 import { EmployeeProfilePage } from './pages/EmployeeProfile';
+import { Error403Page } from './error/403';
 import ProtectedRoute from './components/ProtectedRoute';
 
 export const App: React.FC = () => {
@@ -13,6 +14,7 @@ export const App: React.FC = () => {
       <Routes>
         {/* Public Route */}
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/403" element={<Error403Page />} />
         
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>

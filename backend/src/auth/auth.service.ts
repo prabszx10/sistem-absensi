@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException,ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
@@ -23,6 +23,48 @@ export class AuthService {
     const user = await this.userRepository.findOne({ where: { email } });
     if (!user) {
       throw new UnauthorizedException('Email atau password salah');
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, user.password);
+    if (!isPasswordValid) {
+      throw new UnauthorizedException('Email atau password salah');
+    }
+
+    if(user.role != 'user'){
+      throw new ForbiddenException('Akses ditolak. Portal ini khusus User');
+    }
+
+    const employee = await this.employeeRepository.findOne({ where: { "userId": user.id} });
+
+    const payload = { id: user.id, email: user.email, role: user.role };
+    const accessToken = this.jwtService.sign(payload, {
+      secret: 'dickypraboowo2026',
+      expiresIn: '1d',
+    });
+
+    return {
+      message: 'Login berhasil',
+      access_token: accessToken,
+      user: {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        name: employee?.nama,
+        employeeId: employee?.id
+      },
+    };
+  }
+
+  async loginAdmin(loginDto: LoginDto) {
+    const { email, password } = loginDto;
+
+    const user = await this.userRepository.findOne({ where: { email } });
+    if (!user) {
+      throw new UnauthorizedException('Email atau password salah');
+    }
+
+    if(user.role != 'admin'){
+      throw new ForbiddenException('Akses ditolak. Portal ini khusus Admin');
     }
 
     const isPasswordValid = await bcrypt.compare(password, user.password);
